@@ -7,6 +7,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDate;
 
+// Les tests unitaires testent une portion de code de manière unitaire et indépendante
+// Les tests paramétrés sont intéressants si on a plusieurs jeux de données pour un même test
+
 public class EmployeTest {
 
     @Test
@@ -99,6 +102,21 @@ public class EmployeTest {
 
         // Then
         Assertions.assertThat(prime).isEqualTo(primeAttendue);
+
+    }
+
+    // Test Unitaire Classique : Prime Annuelle
+    @Test
+    public void testGetPrimeAnnuelleMatriculeNull() {
+        // Given
+        Employe employe = new Employe("Doe", "John", null,
+                LocalDate.now(), 1500d, 1, 1.0);
+
+        // When
+        Double prime = employe.getPrimeAnnuelle();
+
+        // Then
+        Assertions.assertThat(prime).isEqualTo(1000);
 
     }
 }
