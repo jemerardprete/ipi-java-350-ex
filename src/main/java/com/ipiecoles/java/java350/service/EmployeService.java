@@ -1,5 +1,8 @@
 package com.ipiecoles.java.java350.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ipiecoles.java.java350.exception.EmployeException;
 import com.ipiecoles.java.java350.model.Employe;
 import com.ipiecoles.java.java350.model.Entreprise;
@@ -18,6 +21,8 @@ public class EmployeService {
     @Autowired
     private EmployeRepository employeRepository;
 
+    private static Logger logger = LoggerFactory.getLogger(EmployeService.class);
+
     /**
      * Méthode enregistrant un nouvel employé dans l'entreprise
      *
@@ -31,6 +36,8 @@ public class EmployeService {
      * @throws EntityExistsException Si le matricule correspond à un employé existant
      */
     public Employe embaucheEmploye(String nom, String prenom, Poste poste, NiveauEtude niveauEtude, Double tempsPartiel) throws EmployeException, EntityExistsException {
+        logger.info("Embauche d'un employé avec les infos suivantes : nom : {}, prénom : {}, poste {}, niveau d'étude : {}, taux activité : {}",
+                nom, prenom, poste, niveauEtude, tempsPartiel);
 
         //Récupération du type d'employé à partir du poste
         String typeEmploye = poste.name().substring(0,1);
@@ -51,6 +58,7 @@ public class EmployeService {
 
         //On vérifie l'existence d'un employé avec ce matricule
         if(employeRepository.findByMatricule(matricule) != null){
+            logger.error("L'employé de matricule " + matricule + " existe déjà en BDD");
             throw new EntityExistsException("L'employé de matricule " + matricule + " existe déjà en BDD");
         }
 
@@ -64,6 +72,7 @@ public class EmployeService {
         Employe employe = new Employe(nom, prenom, matricule, LocalDate.now(), salaire, Entreprise.PERFORMANCE_BASE, tempsPartiel);
 
         employeRepository.save(employe);
+        logger.info("Employé créé : {}", employe.toString());
         return employe;
 
     }

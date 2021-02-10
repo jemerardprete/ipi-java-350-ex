@@ -228,4 +228,5 @@ case SATURDAY:var = var + 1;
     public int hashCode() {
         return Objects.hash(id, nom, prenom, matricule, dateEmbauche, salaire, performance);
     }
+
 }
