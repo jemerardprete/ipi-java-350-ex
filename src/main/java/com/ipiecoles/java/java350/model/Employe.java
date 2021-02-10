@@ -258,4 +258,17 @@ public class Employe {
         return Objects.hash(id, nom, prenom, matricule, dateEmbauche, salaire, performance);
     }
 
+    @Override
+    public String toString() {
+        return "Employe{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                ", prenom='" + prenom + '\'' +
+                ", matricule='" + matricule + '\'' +
+                ", dateEmbauche=" + dateEmbauche +
+                ", salaire=" + salaire +
+                ", performance=" + performance +
+                ", tempsPartiel=" + tempsPartiel +
+                '}';
+    }
 }
