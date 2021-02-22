@@ -74,7 +74,7 @@ public class Employe {
      * - le nom de jours fériés ne tombant pas le week-end
      * - Nombre de congés payés
      *
-     * @param dateReference la date à laquelle on va calculer on va calculer le nombre de RTT pour l'année
+     * @param dateReference la date à laquelle on va calculer le nombre de RTT pour l'année
      * @return Nombre de jours de RTT pour l'employé l'année et la date de référence
      * au prorata du temps d'activité
      */
@@ -156,13 +156,15 @@ public class Employe {
      * @return Le salaire augmenté
      */
     public Double augmenterSalaire(Double pourcentage) throws EmployeException {
-        if(this.salaire == null) {
+        Double salaire = this.salaire;
+        if(salaire == null) {
             return null;
         }
         if(pourcentage < 0) {
             throw new EmployeException("Le pourcentage ne peut être négatif !");
         }
-        return this.salaire = this.getSalaire() * (1 + pourcentage);
+        salaire = this.getSalaire() * (1 + pourcentage);
+        return salaire;
     }
 
     public Long getId() {
