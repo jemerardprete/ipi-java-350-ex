@@ -12,14 +12,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.persistence.EntityExistsException;
 import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 // Test d'intégration : Appel de Repository
 
@@ -32,7 +27,7 @@ class EmployeServiceTest {
     private EmployeRepository employeRepository;
 
     @Test
-    public void testEmbauchePremierEmploye() throws EmployeException {
+    void testEmbauchePremierEmploye() throws EmployeException {
         // Given (pas d'employés en base)
         String nom = "Doe";
         String prenom = "Prenom";
@@ -64,7 +59,7 @@ class EmployeServiceTest {
     }
 
     @Test
-    public void testEmbaucheLimiteMatricule() {
+    void testEmbaucheLimiteMatricule() {
         // Given
         String nom = "Doe";
         String prenom = "Prenom";
@@ -88,7 +83,7 @@ class EmployeServiceTest {
     }
 
     @Test
-    public void testEmbaucheEmployeExsiteDeja() {
+    void testEmbaucheEmployeExsiteDeja() {
         // Given
         String nom = "Doe";
         String prenom = "Prenom";
@@ -114,8 +109,6 @@ class EmployeServiceTest {
 
     }
 
-    /* EVALUATION */
-
     // 3. Tester sans dépendance à la BDD la méthode calculPerformanceCommercial //
 
     // Test Unitaire (paramétré) : calculPerformanceCommercial :
@@ -127,7 +120,7 @@ class EmployeServiceTest {
             "11000, 7",
             "20000, 10"
     })
-    public void testCalculPerformanceCommercial(Long caTraite, Integer performance) throws EmployeException {
+    void testCalculPerformanceCommercial(Long caTraite, Integer performance) throws EmployeException {
         // Given
         String nom = "Miro";
         String prenom = "Alexia";
@@ -151,7 +144,7 @@ class EmployeServiceTest {
 
     // Test Unitaire : testCalculPerformanceCommercialCaTraiteNull
     @Test
-    public void testCalculPerformanceCommercialCaTraiteNull() {
+    void testCalculPerformanceCommercialCaTraiteNull() {
         // Given
         String matricule = "C00001";
         Long objectifCa = 10000L;
@@ -168,9 +161,28 @@ class EmployeServiceTest {
         }
     }
 
+    // Test Unitaire : testCalculPerformanceCommercialCaTraiteNegatif
+    @Test
+    void testCalculPerformanceCommercialCaTraiteNegatif() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+        Long caTraite = -2L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le chiffre d'affaire traité ne peut être négatif ou null !");
+        }
+    }
+
     // Test Unitaire : testCalculPerformanceCommercialObjectifCaNull
     @Test
-    public void testCalculPerformanceCommercialObjectifCaNull() {
+    void testCalculPerformanceCommercialObjectifCaNull() {
         // Given
         String matricule = "C00001";
         Long objectifCa = null;
@@ -189,7 +201,7 @@ class EmployeServiceTest {
 
     // Test Unitaire : testCalculPerformanceCommercialObjectifCa0
     @Test
-    public void testCalculPerformanceCommercialObjectifCaNegatif() {
+    void testCalculPerformanceCommercialObjectifCaNegatif() {
         // Given
         String matricule = "C00001";
         Long objectifCa = -6L;
@@ -208,7 +220,7 @@ class EmployeServiceTest {
 
     // Test Unitaire : testCalculPerformanceCommercialMatriculeIncorrect
     @Test
-    public void testCalculPerformanceCommercialMatriculeIncorrect() {
+    void testCalculPerformanceCommercialMatriculeIncorrect() {
         // Given
         String matricule = "T00001";
         Long objectifCa = 10000L;
@@ -227,7 +239,7 @@ class EmployeServiceTest {
 
     // Test Unitaire : testCalculPerformanceCommercialMatriculeNull
     @Test
-    public void testCalculPerformanceCommercialMatriculeNull() {
+    void testCalculPerformanceCommercialMatriculeNull() {
         // Given
         String matricule = null;
         Long objectifCa = 10000L;
@@ -246,7 +258,7 @@ class EmployeServiceTest {
 
     // Test Unitaire : testCalculPerformanceCommercialEmployeNull
     @Test
-    public void testCalculPerformanceCommercialEmployeNull() {
+    void testCalculPerformanceCommercialEmployeNull() {
         //Given
         String matricule = "C00001";
         Long caTraite = 10000L;
