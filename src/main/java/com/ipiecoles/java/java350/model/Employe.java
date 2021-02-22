@@ -144,12 +144,12 @@ public class Employe {
     }
 
     //Augmenter salaire
-    public Double augmenterSalaire(Double pourcentage) {
+    public Double augmenterSalaire(Double pourcentage) throws EmployeException {
         if(this.salaire == null) {
             return null;
         }
         if(pourcentage < 0) {
-            return this.salaire;
+            throw new EmployeException("Le pourcentage ne peut être négatif !");
         }
         return this.salaire = this.getSalaire() * (1 + pourcentage);
     }

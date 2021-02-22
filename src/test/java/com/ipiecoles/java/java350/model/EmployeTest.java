@@ -127,7 +127,7 @@ public class EmployeTest {
 
     // Test Unitaire : testAugmentationSalaire
     @Test
-    public void testAugmentationSalaire() {
+    public void testAugmentationSalaire() throws EmployeException {
         // Given
         Employe employe = new Employe();
         employe.setSalaire(1500.0);
@@ -141,7 +141,7 @@ public class EmployeTest {
 
     // Test Unitaire : testAugmentationSalaireNull
     @Test
-    public void testAugmentationSalaireNull() {
+    public void testAugmentationSalaireNull() throws EmployeException {
         // Given
         Employe employe = new Employe();
         employe.setSalaire(null);
@@ -175,10 +175,14 @@ public class EmployeTest {
         employe.setSalaire(1500.0);
 
         // When
-        Double salaire = employe.augmenterSalaire(-0.50);
-
-        // Then
-        Assertions.assertThat(salaire).isEqualTo(1500.0);
+        try {
+            employe.augmenterSalaire(-0.50);
+            Assertions.fail("augmenterSalaire aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le pourcentage ne peut être négatif !");
+        }
     }
 
     // 2. Tests Unitaires (paramétrés) sur la méthode getNbRtt //
