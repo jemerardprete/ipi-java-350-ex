@@ -121,10 +121,11 @@ class EmployeServiceTest {
     // Test Unitaire (paramétré) : calculPerformanceCommercial :
     @ParameterizedTest(name = "caTraite {0} => performance {1} ")
     @CsvSource({
-            "1000, 1", //Cas 2
-            "9000, 4", //Cas 3
-            "11000, 7", //Cas 4
-            "20000, 10" //Cas 5
+            "1000, 1",
+            "9000, 4",
+            "9900, 6",
+            "11000, 7",
+            "20000, 10"
     })
     public void testCalculPerformanceCommercial(Long caTraite, Integer performance) throws EmployeException {
         // Given
@@ -186,6 +187,25 @@ class EmployeServiceTest {
         }
     }
 
+    // Test Unitaire : testCalculPerformanceCommercialObjectifCa0
+    @Test
+    public void testCalculPerformanceCommercialObjectifCaNegatif() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = -6L;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("L'objectif de chiffre d'affaire ne peut être négatif ou null !");
+        }
+    }
+
     // Test Unitaire : testCalculPerformanceCommercialMatriculeIncorrect
     @Test
     public void testCalculPerformanceCommercialMatriculeIncorrect() {
@@ -205,17 +225,46 @@ class EmployeServiceTest {
         }
     }
 
+    // Test Unitaire : testCalculPerformanceCommercialMatriculeNull
+    @Test
+    public void testCalculPerformanceCommercialMatriculeNull() {
+        // Given
+        String matricule = null;
+        Long objectifCa = 10000L;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le matricule ne peut être null et doit commencer par un C !");
+        }
+    }
+
     // Test Unitaire : testCalculPerformanceCommercialEmployeNull
     @Test
     public void testCalculPerformanceCommercialEmployeNull() {
         //Given
+        String matricule = "C00001";
+        Long caTraite = 10000L;
+        Long objectifCa = 10000L;
 
-        //When
+        Mockito.when(employeRepository.findByMatricule("C00001")).thenReturn(null);
 
-        //Then
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le matricule C00001 n'existe pas !");
+        }
+
 
     }
-
-
 
 }
