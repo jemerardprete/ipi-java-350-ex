@@ -158,6 +158,8 @@ public class EmployeTest {
     // Test Paramétré : Nombre RTT
     @ParameterizedTest(name = "annee {0}, tempsPartiel {1} => nbRttAttendus {2} ")
     @CsvSource({
+            "2016, 1.0, 9",
+            "2016, 0.5, 5",
             "2019, 1.0, 8",
             "2019, 0.5, 4",
             "2021, 1.0, 10",

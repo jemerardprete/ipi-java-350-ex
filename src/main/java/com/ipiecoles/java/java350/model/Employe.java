@@ -145,7 +145,16 @@ public class Employe {
         return prime * this.tempsPartiel;
     }
 
-    //Augmenter salaire
+    /**
+     * Méthode permettant d'augmenter le salaire d'un employé
+     * Selon la formule :
+     * Salaire Augmenté =
+     * Salaire de base
+     * x (1+Pourcentage)
+     *
+     * @param pourcentage d'augmentation, additionner à 1
+     * @return Le salaire augmenté
+     */
     public Double augmenterSalaire(Double pourcentage) throws EmployeException {
         if(this.salaire == null) {
             return null;
