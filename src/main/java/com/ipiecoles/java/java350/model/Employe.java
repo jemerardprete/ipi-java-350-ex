@@ -1,5 +1,7 @@
 package com.ipiecoles.java.java350.model;
 
+import com.ipiecoles.java.java350.exception.EmployeException;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -142,7 +144,15 @@ public class Employe {
     }
 
     //Augmenter salaire
-    //public void augmenterSalaire(double pourcentage){}
+    public Double augmenterSalaire(Double pourcentage) {
+        if(this.salaire == null) {
+            return null;
+        }
+        if(pourcentage < 0) {
+            return this.salaire;
+        }
+        return this.salaire = this.getSalaire() * (1 + pourcentage);
+    }
 
     public Long getId() {
         return id;
