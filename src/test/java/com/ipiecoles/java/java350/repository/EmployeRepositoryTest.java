@@ -2,6 +2,7 @@ package com.ipiecoles.java.java350.repository;
 
 import com.ipiecoles.java.java350.Java350Application;
 import com.ipiecoles.java.java350.model.Employe;
+import com.ipiecoles.java.java350.model.Entreprise;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +57,7 @@ class EmployeRepositoryTest {
     }
 
     @Test
-    public void textFindLastMatriculeNEmploye() {
+    public void testFindLastMatriculeNEmploye() {
         // Given
         employeRepository.save(new Employe("Doe", "John", "T12345",
                 LocalDate.now(), 1500d, 1, 1.0));
@@ -70,6 +71,52 @@ class EmployeRepositoryTest {
 
         // Then
         Assertions.assertThat(lastMatricule).isEqualTo("40325");
+    }
+
+    // Tester de manière intégrée la méthode d'EmployeRepository avgPerformanceWhereMatriculeStartsWith //
+
+    // Test d'intégration : testAvgPerformanceWhereMatriculeStartsWith0Employe
+    @Test
+    public void testAvgPerformanceWhereMatriculeStartsWith0Employe() {
+        // Given
+
+        // When
+        Double avgPerformanceWhereMatriculeStartsWith = employeRepository.avgPerformanceWhereMatriculeStartsWith("C");
+
+        // Then
+        Assertions.assertThat(avgPerformanceWhereMatriculeStartsWith).isNull();
+    }
+
+    // Test d'intégration : testAvgPerformanceWhereMatriculeStartsWith1Employe
+    @Test
+    public void testAvgPerformanceWhereMatriculeStartsWith1Employe() {
+        // Given
+        employeRepository.save(new Employe("Doe", "John", "C12345",
+                LocalDate.now(), 1500d, Entreprise.PERFORMANCE_BASE, 1.0));
+
+        // When
+        Double avgPerformanceWhereMatriculeStartsWith = employeRepository.avgPerformanceWhereMatriculeStartsWith("C");
+
+        // Then
+        Assertions.assertThat(avgPerformanceWhereMatriculeStartsWith).isEqualTo(1);
+    }
+
+    // Test d'intégration : testAvgPerformanceWhereMatriculeStartsWithNEmploye
+    @Test
+    public void testAvgPerformanceWhereMatriculeStartsWithNEmploye() {
+        // Given
+        employeRepository.save(new Employe("Doe", "John", "C12345",
+                LocalDate.now(), 1500d, 1, 1.0));
+        employeRepository.save(new Employe("Doe", "Jane", "C40325",
+                LocalDate.now(), 1500d, 3, 1.0));
+        employeRepository.save(new Employe("Doe", "Jim", "C06432",
+                LocalDate.now(), 1500d, 5, 1.0));
+
+        // When
+        Double avgPerformanceWhereMatriculeStartsWith = employeRepository.avgPerformanceWhereMatriculeStartsWith("C");
+
+        // Then
+        Assertions.assertThat(avgPerformanceWhereMatriculeStartsWith).isEqualTo(3.0);
     }
 
     // Réinitialisation du contexte avant l'exécution du test : Vider la base de données :
