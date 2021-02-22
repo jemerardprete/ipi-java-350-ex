@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class EmployeTest {
 
     @Test
-    public void testX() {
+    void testX() {
         // Given
 
         // When
@@ -24,7 +24,7 @@ public class EmployeTest {
 
     // Test Unitaire Classique : Nombre d'années d'ancienneté
     @Test
-    public void testGetNbAnneeAncienneteDateEmbaucheNull() {
+    void testGetNbAnneeAncienneteDateEmbaucheNull() {
         // Given
         Employe employe = new Employe();
         employe.setDateEmbauche(null);
@@ -38,7 +38,7 @@ public class EmployeTest {
 
     // Test Unitaire Classique : Nombre d'années d'ancienneté
     @Test
-    public void testGetNbAnneeAncienneteDateEmbaucheInfNow() {
+    void testGetNbAnneeAncienneteDateEmbaucheInfNow() {
         // Given
         Employe employe = new Employe("Doe", "John", "T12345", LocalDate.now().minusYears(6), 1500d, 1, 1.0);
 
@@ -53,7 +53,7 @@ public class EmployeTest {
 
     // Test Unitaire Classique : Nombre d'années d'ancienneté
     @Test
-    public void testGetNbAnneeAncienneteDateEmbaucheSupNow() {
+    void testGetNbAnneeAncienneteDateEmbaucheSupNow() {
         // Given
         Employe employe = new Employe("Doe", "John", "T12345", LocalDate.now().plusYears(6), 1500d, 1, 1.0);
 
@@ -64,27 +64,6 @@ public class EmployeTest {
         Assertions.assertThat(anneeAnciennete).isNull();
     }
 
-    // Test Unitaire Classique : Prime Annuelle
-    /*@Test
-    public void testGetPrimeAnnuelleTU() {
-        // Given
-        Integer performance = 1; // Egal à PERFORMANCE_BASE
-        String matricule = "T12345"; // Matricule d'un employé de base, càd pas manager
-        Double tauxActivite = 1.0; // Temps plein
-        Long nbAnneesAnciennete = 0L; // Au lieu de mettre la date en dur
-
-        Employe employe = new Employe("Doe", "John", matricule,
-                LocalDate.now().minusYears(nbAnneesAnciennete), 1500d, performance, tauxActivite);
-
-        // When
-        Double prime = employe.getPrimeAnnuelle();
-
-        // Then
-        Double primeAttendue = 1000.0; // Egal à PRIME_BASE
-        Assertions.assertThat(prime).isEqualTo(primeAttendue);
-
-    }*/
-
     // Test Paramétré : Prime Annuelle (= Test Unitaire Classique : Prime Annuelle)
     @ParameterizedTest(name = "Perf {0}, matricule {1}, txActivite {2}, anciennete {3} => prime {4} ")
     @CsvSource({
@@ -93,7 +72,7 @@ public class EmployeTest {
             "2, 'T12345', 1.0, 0, 2300.0",
             "1, 'T12345', 1.0, 2, 1200.0"
     })
-    public void testGetPrimeAnnuelle(Integer performance, String matricule, Double tauxActivite, Long nbAnneesAnciennete, Double primeAttendue) {
+    void testGetPrimeAnnuelle(Integer performance, String matricule, Double tauxActivite, Long nbAnneesAnciennete, Double primeAttendue) {
         // Given
         Employe employe = new Employe("Doe", "John", matricule,
                 LocalDate.now().minusYears(nbAnneesAnciennete), 1500d, performance, tauxActivite);
@@ -108,7 +87,7 @@ public class EmployeTest {
 
     // Test Unitaire Classique : Prime Annuelle
     @Test
-    public void testGetPrimeAnnuelleMatriculeNull() {
+    void testGetPrimeAnnuelleMatriculeNull() {
         // Given
         Employe employe = new Employe("Doe", "John", null,
                 LocalDate.now(), 1500d, 1, 1.0);
@@ -121,13 +100,11 @@ public class EmployeTest {
 
     }
 
-    /* EVALUATION */
-
     // 1. Tests Unitaires sur la méthode augmenterSalaire //
 
     // Test Unitaire : testAugmentationSalaire
     @Test
-    public void testAugmentationSalaire() throws EmployeException {
+    void testAugmentationSalaire() throws EmployeException {
         // Given
         Employe employe = new Employe();
         employe.setSalaire(1500.0);
@@ -141,7 +118,7 @@ public class EmployeTest {
 
     // Test Unitaire : testAugmentationSalaireNull
     @Test
-    public void testAugmentationSalaireNull() throws EmployeException {
+    void testAugmentationSalaireNull() throws EmployeException {
         // Given
         Employe employe = new Employe();
         employe.setSalaire(null);
@@ -155,7 +132,7 @@ public class EmployeTest {
 
     // Test Unitaire : testAugmentation0Salaire
     @Test
-    public void testAugmentation0Salaire() throws EmployeException {
+    void testAugmentation0Salaire() throws EmployeException {
         // Given
         Employe employe = new Employe();
         employe.setSalaire(1500.0);
@@ -169,7 +146,7 @@ public class EmployeTest {
 
     // Test Unitaire : testAugmentationNegativeSalaire
     @Test
-    public void testAugmentationNegativeSalaire() {
+    void testAugmentationNegativeSalaire() {
         // Given
         Employe employe = new Employe();
         employe.setSalaire(1500.0);
@@ -196,10 +173,12 @@ public class EmployeTest {
             "2021, 0.5, 5",
             "2022, 1.0, 10",
             "2022, 0.5, 5",
+            "2026, 1.0, 9",
+            "2026, 0.5, 5",
             "2032, 1.0, 11",
             "2032, 0.5, 6"
     })
-    public void testGetNbRtt(Integer annee, Double tempsPartiel, Integer nbRttAttendus) {
+    void testGetNbRtt(Integer annee, Double tempsPartiel, Integer nbRttAttendus) {
         // Given
         Employe employe = new Employe("Dupont", "Maria", "T12345", LocalDate.now().minusYears(6), 1500.0, 1, tempsPartiel);
 
