@@ -8,6 +8,8 @@ import com.ipiecoles.java.java350.repository.EmployeRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,5 +113,109 @@ class EmployeServiceTest {
         }
 
     }
+
+    /* EVALUATION */
+
+    // 3. Tester sans dépendance à la BDD la méthode calculPerformanceCommercial //
+
+    // Test Unitaire (paramétré) : calculPerformanceCommercial :
+    @ParameterizedTest(name = "caTraite {0} => performance {1} ")
+    @CsvSource({
+            "1000, 1", //Cas 2
+            "9000, 4", //Cas 3
+            "11000, 7", //Cas 4
+            "20000, 10" //Cas 5
+    })
+    public void testCalculPerformanceCommercial(Long caTraite, Integer performance) throws EmployeException {
+        // Given
+        String nom = "Miro";
+        String prenom = "Alexia";
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+
+        // Simuler que la recherche par matricule renvoie un employe
+        Mockito.when(employeRepository.findByMatricule(matricule)).thenReturn(new Employe(nom, prenom, matricule, LocalDate.now(), 1500d, 5, 1.0));
+        Mockito.when(employeRepository.avgPerformanceWhereMatriculeStartsWith("C")).thenReturn(1.0);
+
+        // When
+        employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+
+        // Then
+        ArgumentCaptor<Employe> employeArgumentCaptor = ArgumentCaptor.forClass(Employe.class);
+        Mockito.verify(employeRepository).save(employeArgumentCaptor.capture());
+        Employe employe = employeArgumentCaptor.getValue();
+        Assertions.assertThat(employe.getPerformance()).isEqualTo(performance);
+
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialCaTraiteNull
+    @Test
+    public void testCalculPerformanceCommercialCaTraiteNull() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+        Long caTraite = null;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le chiffre d'affaire traité ne peut être négatif ou null !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialObjectifCaNull
+    @Test
+    public void testCalculPerformanceCommercialObjectifCaNull() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = null;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("L'objectif de chiffre d'affaire ne peut être négatif ou null !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialMatriculeIncorrect
+    @Test
+    public void testCalculPerformanceCommercialMatriculeIncorrect() {
+        // Given
+        String matricule = "T00001";
+        Long objectifCa = 10000L;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le matricule ne peut être null et doit commencer par un C !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialEmployeNull
+    @Test
+    public void testCalculPerformanceCommercialEmployeNull() {
+        //Given
+
+        //When
+
+        //Then
+
+    }
+
+
 
 }
