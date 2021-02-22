@@ -26,7 +26,7 @@ class EmployeServiceIntegrationTest {
     private EmployeRepository employeRepository;
 
     @Test
-    public void testEmbauchePremierEmploye() throws EmployeException {
+    void testEmbauchePremierEmploye() throws EmployeException {
         // Given (pas d'employés en base)
         String nom = "Doe";
         String prenom = "Prenom";
@@ -52,7 +52,7 @@ class EmployeServiceIntegrationTest {
     // 4. Tester de manière intégrée un cas nominal de la méthode précédente //
 
     @Test
-    public void testCalculPerformanceCommercial() throws EmployeException {
+    void testCalculPerformanceCommercial() throws EmployeException {
         // Given
         String nom = "Gauthier";
         String prenom = "Jean";

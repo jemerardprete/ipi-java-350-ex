@@ -279,4 +279,29 @@ class EmployeServiceTest {
 
     }
 
+    // Test Unitaire : testCalculPerformanceMoyenneSupPerformanceCommercial
+    @Test
+    void testCalculPerformanceMoyenneSupPerformanceCommercial() throws EmployeException {
+        // Given
+        String nom = "Miro";
+        String prenom = "Alexia";
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+        Long caTraite = 10000L;
+
+        // Simuler que la recherche par matricule renvoie un employe
+        Mockito.when(employeRepository.findByMatricule(matricule)).thenReturn(new Employe(nom, prenom, matricule, LocalDate.now(), 1500d, 5, 1.0));
+        Mockito.when(employeRepository.avgPerformanceWhereMatriculeStartsWith("C")).thenReturn(10.0);
+
+        // When
+        employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+
+        // Then
+        ArgumentCaptor<Employe> employeArgumentCaptor = ArgumentCaptor.forClass(Employe.class);
+        Mockito.verify(employeRepository).save(employeArgumentCaptor.capture());
+        Employe employe = employeArgumentCaptor.getValue();
+        Assertions.assertThat(employe.getPerformance()).isLessThan(10);
+
+    }
+
 }

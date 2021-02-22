@@ -13,15 +13,6 @@ import java.time.LocalDate;
 
 public class EmployeTest {
 
-    @Test
-    void testX() {
-        // Given
-
-        // When
-
-        // Then
-    }
-
     // Test Unitaire Classique : Nombre d'années d'ancienneté
     @Test
     void testGetNbAnneeAncienneteDateEmbaucheNull() {
