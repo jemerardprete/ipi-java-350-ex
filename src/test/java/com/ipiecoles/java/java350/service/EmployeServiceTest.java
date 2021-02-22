@@ -8,19 +8,13 @@ import com.ipiecoles.java.java350.repository.EmployeRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.persistence.EntityExistsException;
 import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 // Test d'intégration : Appel de Repository
 
@@ -33,13 +27,15 @@ class EmployeServiceTest {
     private EmployeRepository employeRepository;
 
     @Test
-    public void testEmbauchePremierEmploye() throws EmployeException {
+    void testEmbauchePremierEmploye() throws EmployeException {
         // Given (pas d'employés en base)
         String nom = "Doe";
         String prenom = "Prenom";
         Poste poste = Poste.TECHNICIEN;
         NiveauEtude niveauEtude = NiveauEtude.BTS_IUT;
         Double tempsPartiel = 1.0;
+
+        Mockito.when(employeRepository.save(Mockito.any(Employe.class))).thenAnswer(AdditionalAnswers.returnsFirstArg());
 
         // Simuler qu'aucun employé n'est présent (ou du moins aucun matricule)
         Mockito.when(employeRepository.findLastMatricule()).thenReturn(null);
@@ -63,7 +59,7 @@ class EmployeServiceTest {
     }
 
     @Test
-    public void testEmbaucheLimiteMatricule() {
+    void testEmbaucheLimiteMatricule() {
         // Given
         String nom = "Doe";
         String prenom = "Prenom";
@@ -87,7 +83,7 @@ class EmployeServiceTest {
     }
 
     @Test
-    public void testEmbaucheEmployeExsiteDeja() {
+    void testEmbaucheEmployeExsiteDeja() {
         // Given
         String nom = "Doe";
         String prenom = "Prenom";
@@ -110,6 +106,201 @@ class EmployeServiceTest {
             Assertions.assertThat(e).isInstanceOf(EntityExistsException.class);
             Assertions.assertThat(e.getMessage()).isEqualTo("L'employé de matricule T00001 existe déjà en BDD");
         }
+
+    }
+
+    // 3. Tester sans dépendance à la BDD la méthode calculPerformanceCommercial //
+
+    // Test Unitaire (paramétré) : calculPerformanceCommercial :
+    @ParameterizedTest(name = "caTraite {0} => performance {1} ")
+    @CsvSource({
+            "1000, 1",
+            "9000, 4",
+            "9900, 6",
+            "11000, 7",
+            "20000, 10"
+    })
+    void testCalculPerformanceCommercial(Long caTraite, Integer performance) throws EmployeException {
+        // Given
+        String nom = "Miro";
+        String prenom = "Alexia";
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+
+        // Simuler que la recherche par matricule renvoie un employe
+        Mockito.when(employeRepository.findByMatricule(matricule)).thenReturn(new Employe(nom, prenom, matricule, LocalDate.now(), 1500d, 5, 1.0));
+        Mockito.when(employeRepository.avgPerformanceWhereMatriculeStartsWith("C")).thenReturn(1.0);
+
+        // When
+        employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+
+        // Then
+        ArgumentCaptor<Employe> employeArgumentCaptor = ArgumentCaptor.forClass(Employe.class);
+        Mockito.verify(employeRepository).save(employeArgumentCaptor.capture());
+        Employe employe = employeArgumentCaptor.getValue();
+        Assertions.assertThat(employe.getPerformance()).isEqualTo(performance);
+
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialCaTraiteNull
+    @Test
+    void testCalculPerformanceCommercialCaTraiteNull() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+        Long caTraite = null;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le chiffre d'affaire traité ne peut être négatif ou null !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialCaTraiteNegatif
+    @Test
+    void testCalculPerformanceCommercialCaTraiteNegatif() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+        Long caTraite = -2L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le chiffre d'affaire traité ne peut être négatif ou null !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialObjectifCaNull
+    @Test
+    void testCalculPerformanceCommercialObjectifCaNull() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = null;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("L'objectif de chiffre d'affaire ne peut être négatif ou null !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialObjectifCa0
+    @Test
+    void testCalculPerformanceCommercialObjectifCaNegatif() {
+        // Given
+        String matricule = "C00001";
+        Long objectifCa = -6L;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("L'objectif de chiffre d'affaire ne peut être négatif ou null !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialMatriculeIncorrect
+    @Test
+    void testCalculPerformanceCommercialMatriculeIncorrect() {
+        // Given
+        String matricule = "T00001";
+        Long objectifCa = 10000L;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le matricule ne peut être null et doit commencer par un C !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialMatriculeNull
+    @Test
+    void testCalculPerformanceCommercialMatriculeNull() {
+        // Given
+        String matricule = null;
+        Long objectifCa = 10000L;
+        Long caTraite = 10000L;
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le matricule ne peut être null et doit commencer par un C !");
+        }
+    }
+
+    // Test Unitaire : testCalculPerformanceCommercialEmployeNull
+    @Test
+    void testCalculPerformanceCommercialEmployeNull() {
+        //Given
+        String matricule = "C00001";
+        Long caTraite = 10000L;
+        Long objectifCa = 10000L;
+
+        Mockito.when(employeRepository.findByMatricule("C00001")).thenReturn(null);
+
+        // When
+        try {
+            employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+            Assertions.fail("calculPerformanceCommercial aurait dû lancer une exception");
+        } catch (Exception e) {
+            // Then
+            Assertions.assertThat(e).isInstanceOf(EmployeException.class);
+            Assertions.assertThat(e.getMessage()).isEqualTo("Le matricule C00001 n'existe pas !");
+        }
+
+
+    }
+
+    // Test Unitaire : testCalculPerformanceMoyenneSupPerformanceCommercial
+    @Test
+    void testCalculPerformanceMoyenneSupPerformanceCommercial() throws EmployeException {
+        // Given
+        String nom = "Miro";
+        String prenom = "Alexia";
+        String matricule = "C00001";
+        Long objectifCa = 10000L;
+        Long caTraite = 10000L;
+
+        // Simuler que la recherche par matricule renvoie un employe
+        Mockito.when(employeRepository.findByMatricule(matricule)).thenReturn(new Employe(nom, prenom, matricule, LocalDate.now(), 1500d, 5, 1.0));
+        Mockito.when(employeRepository.avgPerformanceWhereMatriculeStartsWith("C")).thenReturn(10.0);
+
+        // When
+        employeService.calculPerformanceCommercial(matricule, caTraite, objectifCa);
+
+        // Then
+        ArgumentCaptor<Employe> employeArgumentCaptor = ArgumentCaptor.forClass(Employe.class);
+        Mockito.verify(employeRepository).save(employeArgumentCaptor.capture());
+        Employe employe = employeArgumentCaptor.getValue();
+        Assertions.assertThat(employe.getPerformance()).isLessThan(10);
 
     }
 
